@@ -1,0 +1,22 @@
+name: 'Amazon ECS Deploy Action'
+description: 'Deploy a Docker image to Amazon ECS from GitHub Actions'
+inputs:
+  aws-ecr-repository:
+    description: 'AWS ECR repository name'
+    required: true
+  aws-ecs-cluster:
+    description: 'AWS ECS cluster name'
+    required: true
+  aws-ecs-service:
+    description: 'AWS ECS service name'
+    required: true
+  aws-region:
+    description: 'AWS region'
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - run: |
+        echo "Reusing deploy steps from ecs-deploy.yml"
+      shell: bash
+      working-directory: .github/actions/ecs-deploy.yml

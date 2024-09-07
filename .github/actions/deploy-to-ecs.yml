@@ -1,0 +1,42 @@
+name: Deploy to Amazon ECS
+
+inputs:
+  aws-ecr-repository:
+    description: 'The AWS ECR repository name'
+    required: true
+  aws-ecs-cluster:
+    description: 'The AWS ECS cluster name'
+    required: true
+  aws-ecs-service:
+    description: 'The AWS ECS service name'
+    required: true
+  aws-region:
+    description: 'The AWS region where the ECS service is located'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build Docker image
+      run: |
+        docker build -t ${{ inputs.aws-ecr-repository }} .
+        docker tag ${{ inputs.aws-ecr-repository }}:latest ${{ steps.login-ecr.outputs.registry }}/${{ inputs.aws-ecr-repository }}:latest
+
+    - name: Push Docker image to Amazon ECR
+      run: |
+        docker push ${{ steps.login-ecr.outputs.registry }}/${{ inputs.aws-ecr-repository }}:latest
+
+    - name: Deploy to Amazon ECS
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        cluster: ${{ inputs.aws-ecs-cluster }}
+        service: ${{ inputs.aws-ecs-service }}
+        image: ${{ steps.login-ecr.outputs.registry }}/${{ inputs.aws-ecr-repository }}:latest
+        region: ${{ inputs.aws-region }}
