@@ -1,18 +1,16 @@
 name: 'Amazon ECS Deploy Action'
 description: 'Deploy a Docker image to Amazon ECS from GitHub Actions'
 inputs:
-  aws-ecr-repository:
-    description: 'AWS ECR repository name'
+  service-name:
+    description: 'The name of the service being deployed. This will be used to derive ECR repository, ECS service, and task role.'
     required: true
   aws-ecs-cluster:
-    description: 'AWS ECS cluster name'
-    required: true
-  aws-ecs-service:
-    description: 'AWS ECS service name'
+    description: 'The AWS ECS cluster name where the service will be deployed.'
     required: true
   aws-region:
-    description: 'AWS region'
+    description: 'The AWS region where the ECS service is located.'
     required: true
+
 runs:
   using: 'composite'
   steps:
