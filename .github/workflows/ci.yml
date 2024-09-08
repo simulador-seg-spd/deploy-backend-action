@@ -25,8 +25,11 @@ jobs:
         uses: actions/checkout@v2
 
       # Passo 2: Buildar o projeto baseado na linguagem
+      - name: Give execute permission to build script
+        run: chmod +x ./.github/scripts/build-${{ inputs.project-language }}.sh
+
       - name: Build project
-        run: ./.github/workflows/scripts/build-${{ inputs.project-language }}.sh
+        run: ./.github/scripts/build-${{ inputs.project-language }}.sh
 
       # Passo 3: Logar no Amazon ECR
       - name: Log in to Amazon ECR
