@@ -1,54 +1,43 @@
 name: CD - Deploy to ECS
 
 on:
-  workflow_call: # Habilita a chamada desse workflow por outro
+  workflow_call:
     inputs:
       stack-name:
-        description: 'Nome da stack do CloudFormation'
         required: true
+        description: 'Nome da stack do CloudFormation'
       AWS_REGION:
-        description: 'Região AWS'
         required: true
       AWS_ECR_REPOSITORY:
-        description: 'Nome do repositório ECR'
         required: true
+      AWS_ACCOUNT_ID:
+        required: true
+      ImageUrl:
+        required: true
+        description: 'URL da imagem Docker no ECR'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Passo 1: Fazer checkout do repositório do projeto
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Passo 2: Verificar e carregar arquivos da pasta Artefatos
-      - name: Load Artefatos files
+      - name: Load CloudFormation template
         run: |
-          if [ ! -d Artefatos ]; then
-            echo "Pasta Artefatos não encontrada"
-            exit 1
-          fi
-          if [ ! -f Artefatos/template.json ]; then
-            echo "Arquivo template.json não encontrado em Artefatos"
-            exit 1
-          fi
-          if [ ! -f Artefatos/parameters.json ]; then
-            echo "Arquivo parameters.json não encontrado em Artefatos"
+          if [ ! -f template.json ]; then
+            echo "Arquivo template.json não encontrado no repositório da action"
             exit 1
           fi
 
-      # Passo 3: Deploy no ECS via CloudFormation
+      # Passo 3: Deploy no ECS via CloudFormation usando template.json
       - name: Deploy to ECS using CloudFormation
         uses: aws-actions/aws-cloudformation-deploy-action@v1
         with:
-          stack-name: ${{ inputs.stack-name }} # Stack name vindo do input
-          template-file: 'Artefatos/template.json'
+          stack-name: ${{ inputs.stack-name }}
+          template-file: 'template.json'
           parameter-overrides: |
-            $(cat Artefatos/parameters.json | jq -r '. | to_entries | map("\(.key)=\(.value|tostring)") | join(" ")')
+            ImageUrl=${{ inputs.ImageUrl }}  # Passa o URL da imagem para o CloudFormation
           aws-region: ${{ inputs.AWS_REGION }}
           capabilities: CAPABILITY_NAMED_IAM
-
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

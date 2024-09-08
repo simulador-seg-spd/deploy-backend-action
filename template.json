@@ -1,0 +1,186 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Template for deploying an application on AWS ECS with Fargate.",
+  "Parameters": {
+    "VpcId": {
+      "Type": "AWS::EC2::VPC::Id",
+      "Description": "VPC to deploy resources"
+    },
+    "SubnetIds": {
+      "Type": "List<AWS::EC2::Subnet::Id>",
+      "Description": "List of Subnet IDs for ECS tasks"
+    },
+    "ClusterName": {
+      "Type": "String",
+      "Description": "Name of the ECS cluster"
+    },
+    "ServiceName": {
+      "Type": "String",
+      "Description": "Name of the ECS Service"
+    },
+    "ContainerName": {
+      "Type": "String",
+      "Description": "Name of the container"
+    },
+    "ContainerPort": {
+      "Type": "Number",
+      "Description": "Port on the container to open for network traffic",
+      "Default": 8080
+    },
+    "DesiredCount": {
+      "Type": "Number",
+      "Description": "The desired number of tasks for the ECS service",
+      "Default": 1
+    },
+    "TaskCpu": {
+      "Type": "String",
+      "Description": "The number of cpu units used by the task",
+      "Default": "1"
+    },
+    "TaskMemory": {
+      "Type": "String",
+      "Description": "The amount (in MiB) of memory used by the task",
+      "Default": "512"
+    },
+    "ImageUrl": {
+      "Type": "String",
+      "Description": "URL of the Docker image in the ECR repository"
+    }
+  },
+  "Resources": {
+    "ECSCluster": {
+      "Type": "AWS::ECS::Cluster",
+      "Properties": {
+        "ClusterName": {
+          "Ref": "ClusterName"
+        }
+      }
+    },
+    "TaskDefinition": {
+      "Type": "AWS::ECS::TaskDefinition",
+      "Properties": {
+        "Family": {
+          "Ref": "ContainerName"
+        },
+        "Cpu": {
+          "Ref": "TaskCpu"
+        },
+        "Memory": {
+          "Ref": "TaskMemory"
+        },
+        "NetworkMode": "awsvpc",
+        "RequiresCompatibilities": [
+          "FARGATE"
+        ],
+        "ExecutionRoleArn": {
+          "Fn::GetAtt": [
+            "TaskExecutionRole",
+            "Arn"
+          ]
+        },
+        "ContainerDefinitions": [
+          {
+            "Name": {
+              "Ref": "ContainerName"
+            },
+            "Image": {
+              "Ref": "ImageUrl"
+            },
+            "PortMappings": [
+              {
+                "ContainerPort": {
+                  "Ref": "ContainerPort"
+                }
+              }
+            ],
+            "Essential": true
+          }
+        ]
+      }
+    },
+    "TaskExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com"
+              },
+              "Action": "sts:AssumeRole"
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "EcsTaskExecutionPolicy",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "ecr:GetDownloadUrlForLayer",
+                    "ecr:BatchGetImage",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "ECSService": {
+      "Type": "AWS::ECS::Service",
+      "DependsOn": "TaskDefinition",
+      "Properties": {
+        "Cluster": {
+          "Ref": "ECSCluster"
+        },
+        "ServiceName": {
+          "Ref": "ServiceName"
+        },
+        "TaskDefinition": {
+          "Ref": "TaskDefinition"
+        },
+        "DesiredCount": {
+          "Ref": "DesiredCount"
+        },
+        "LaunchType": "FARGATE",
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "Subnets": {
+              "Ref": "SubnetIds"
+            },
+            "AssignPublicIp": "ENABLED"
+          }
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "ECSClusterName": {
+      "Description": "Name of the ECS Cluster",
+      "Value": {
+        "Ref": "ECSCluster"
+      }
+    },
+    "ECSServiceName": {
+      "Description": "Name of the ECS Service",
+      "Value": {
+        "Ref": "ECSService"
+      }
+    },
+    "TaskDefinitionArn": {
+      "Description": "ARN of the ECS Task Definition",
+      "Value": {
+        "Ref": "TaskDefinition"
+      }
+    }
+  }
+}

@@ -30,24 +30,25 @@ jobs:
         type: string
 
     steps:
-      # Passo 1: Fazer checkout do repositório do projeto
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Passo 2: Executar o CI (buildar o projeto e enviar a imagem para o ECR)
+      # Passo 1: Executar o CI pipeline
       - name: Run CI pipeline
-        uses: ./ci.yml # Chama o arquivo CI.yml local
+        uses: ./ci.yml
+        id: ci # Define um ID para capturar o output
         with:
           project-language: ${{ inputs.project-language }}
           AWS_ECR_REPOSITORY: ${{ inputs.aws-ecr-repository }}
           AWS_REGION: ${{ inputs.aws-region }}
           AWS_ACCOUNT_ID: ${{ inputs.aws-account-id }}
 
-      # Passo 3: Executar o CD (deploy da imagem no ECS via CloudFormation)
+      # Passo 2: Executar o CD pipeline, passando o ImageUrl
       - name: Run CD pipeline
-        uses: ./cd.yml # Chama o arquivo CD.yml local
+        uses: ./cd.yml
         with:
           stack-name: ${{ inputs.stack-name }}
           AWS_ECR_REPOSITORY: ${{ inputs.aws-ecr-repository }}
           AWS_REGION: ${{ inputs.aws-region }}
           AWS_ACCOUNT_ID: ${{ inputs.aws-account-id }}
+          ImageUrl: ${{ steps.ci.outputs.image-url }} # Passa o URL da imagem gerado no CI para o CD
