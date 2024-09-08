@@ -17,6 +17,10 @@ on:
       stack-name:
         type: string
         required: true
+    secrets:
+      AWS_ACCOUNT_ID:
+        type: string
+        required: true
 permissions:
   id-token: write
   contents: read
@@ -30,8 +34,8 @@ jobs:
       project-language: ${{ inputs.project-language }}
       AWS_ECR_REPOSITORY: ${{ inputs.aws-ecr-repository }}
       AWS_REGION: ${{ inputs.aws-region }}
+    secrets:
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-
   deploy_to_ecs:
     name: Deploy image to ecs
     needs: build_and_push_image
@@ -40,5 +44,6 @@ jobs:
       stack-name: ${{ inputs.stack-name }}
       AWS_ECR_REPOSITORY: ${{ inputs.aws-ecr-repository }}
       AWS_REGION: ${{ inputs.aws-region }}
-      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       ImageUrl: ${{ needs.build_and_push_image.outputs.image-url }}
+    secrets:
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}

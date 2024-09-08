@@ -8,14 +8,12 @@ on:
         description: 'Nome da stack do CloudFormation'
       AWS_REGION:
         required: true
-      AWS_ECR_REPOSITORY:
-        required: true
-      AWS_ACCOUNT_ID:
-        required: true
       ImageUrl:
         required: true
         description: 'URL da imagem Docker no ECR'
-
+    secrets:
+      AWS_ACCOUNT_ID:
+        required: true
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -38,6 +36,6 @@ jobs:
           stack-name: ${{ inputs.stack-name }}
           template-file: 'template.json'
           parameter-overrides: |
-            ImageUrl=${{ inputs.ImageUrl }}  # Passa o URL da imagem para o CloudFormation
+            ImageUrl=${{ inputs.ImageUrl }}
           aws-region: ${{ inputs.AWS_REGION }}
           capabilities: CAPABILITY_NAMED_IAM
