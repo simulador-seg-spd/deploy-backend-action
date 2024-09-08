@@ -15,8 +15,6 @@ on:
     secrets:
       AWS_ACCOUNT_ID:
         required: true
-        type: string
-
 jobs:
   build_and_push:
     runs-on: ubuntu-latest

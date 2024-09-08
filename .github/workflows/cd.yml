@@ -17,7 +17,6 @@ on:
     secrets:
       AWS_ACCOUNT_ID:
         required: true
-        type: string
 jobs:
   deploy:
     runs-on: ubuntu-latest
