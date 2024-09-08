@@ -5,17 +5,23 @@ on:
     inputs:
       project-language:
         required: true
+        type: string
       aws-ecr-repository:
         required: true
+        type: string
       aws-region:
         required: true
+        type: string
       aws-account-id:
         required: true
+        type: string
       stack-name:
         required: true
+        type: string
     secrets:
       AWS_ACCOUNT_ID:
         required: true
+        type: string
 
 permissions:
   id-token: write

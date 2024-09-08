@@ -5,15 +5,19 @@ on:
     inputs:
       stack-name:
         required: true
+        type: string
         description: 'Nome da stack do CloudFormation'
       AWS_REGION:
         required: true
+        type: string
       ImageUrl:
         required: true
+        type: string
         description: 'URL da imagem Docker no ECR'
     secrets:
       AWS_ACCOUNT_ID:
         required: true
+        type: string
 jobs:
   deploy:
     runs-on: ubuntu-latest

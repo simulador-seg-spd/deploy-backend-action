@@ -5,13 +5,17 @@ on:
     inputs:
       project-language:
         required: true
+        type: string
       AWS_ECR_REPOSITORY:
         required: true
+        type: string
       AWS_REGION:
         required: true
+        type: string
     secrets:
       AWS_ACCOUNT_ID:
         required: true
+        type: string
 
 jobs:
   build_and_push:
