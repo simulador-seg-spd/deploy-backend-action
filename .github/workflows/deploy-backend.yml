@@ -1,8 +1,23 @@
 name: Deploy Backend
-
 on:
   workflow_dispatch: # Permite iniciar manualmente o deploy via interface do GitHub
-
+  workflow_call:
+    input:
+      project-language:
+        type: string
+        required: true
+      aws-ecr-repository:
+        type: string
+        required: true
+      aws-region:
+        type: string
+        required: true
+      aws-account-id:
+        type: string
+        required: true
+      stack-name:
+        type: string
+        required: true
 jobs:
   # Executa o CI para buildar a imagem e enviá-la para o ECR
   build_and_push_image:
