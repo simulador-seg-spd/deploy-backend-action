@@ -2,14 +2,6 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "Template for deploying an application on AWS ECS with Fargate.",
   "Parameters": {
-    "VpcId": {
-      "Type": "AWS::EC2::VPC::Id",
-      "Description": "VPC to deploy resources"
-    },
-    "SubnetIds": {
-      "Type": "List<AWS::EC2::Subnet::Id>",
-      "Description": "List of Subnet IDs for ECS tasks"
-    },
     "ClusterName": {
       "Type": "String",
       "Description": "Name of the ECS cluster"
@@ -25,7 +17,7 @@
     "ContainerPort": {
       "Type": "Number",
       "Description": "Port on the container to open for network traffic",
-      "Default": 8080
+      "Default": 80
     },
     "DesiredCount": {
       "Type": "Number",
@@ -35,7 +27,7 @@
     "TaskCpu": {
       "Type": "String",
       "Description": "The number of cpu units used by the task",
-      "Default": "1"
+      "Default": "256"
     },
     "TaskMemory": {
       "Type": "String",
@@ -154,9 +146,14 @@
         "LaunchType": "FARGATE",
         "NetworkConfiguration": {
           "AwsvpcConfiguration": {
-            "Subnets": {
-              "Ref": "SubnetIds"
-            },
+            "Subnets": [
+              "subnet-04e9d31e9f865052b",
+              "subnet-058829e3408793814",
+              "subnet-07ea24157b1d94ec3",
+              "subnet-096c79de7363b0c44",
+              "subnet-0a13a837d8d1ba278",
+              "subnet-0f60cf8bb7fd11717"
+            ],
             "AssignPublicIp": "ENABLED"
           }
         }
