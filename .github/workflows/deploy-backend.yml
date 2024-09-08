@@ -19,27 +19,27 @@ on:
         type: string
         required: true
 permissions:
-  id-token: write # Necessário se você estiver usando OIDC para autenticação com AWS
-  contents: read # Necessário para ler o conteúdo do repositório
-  actions: write # Necessário para interagir com outras actions e workflows
+  id-token: write
+  contents: read
+  actions: write
+
 jobs:
-  # Executa o CI para buildar a imagem e enviá-la para o ECR
   build_and_push_image:
-    uses: ./.github/workflows/ci.yml # Chama o workflow CI diretamente como job
+    name: Build image and upload to ecr
+    uses: ./.github/workflows/ci.yml
     with:
       project-language: ${{ inputs.project-language }}
       AWS_ECR_REPOSITORY: ${{ inputs.aws-ecr-repository }}
       AWS_REGION: ${{ inputs.aws-region }}
       AWS_ACCOUNT_ID: ${{ inputs.aws-account-id }}
-    secrets: inherit
-  # Executa o CD para fazer o deploy no ECS
+
   deploy_to_ecs:
-    needs: build_and_push_image # Certifica-se de que o job de CI seja concluído antes de rodar o CD
-    uses: ./.github/workflows/cd.yml # Chama o workflow CD diretamente como job
+    name: Deploy image to ecs
+    needs: build_and_push_image
+    uses: ./.github/workflows/cd.yml
     with:
       stack-name: ${{ inputs.stack-name }}
       AWS_ECR_REPOSITORY: ${{ inputs.aws-ecr-repository }}
       AWS_REGION: ${{ inputs.aws-region }}
       AWS_ACCOUNT_ID: ${{ inputs.aws-account-id }}
-      ImageUrl: ${{ needs.build_and_push_image.outputs.image-url }} # Usa o output do CI
-    secrets: inherit
+      ImageUrl: ${{ needs.build_and_push_image.outputs.image-url }}
