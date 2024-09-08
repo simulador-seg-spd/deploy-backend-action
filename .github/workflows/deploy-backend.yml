@@ -1,6 +1,5 @@
 name: Deploy Backend
 on:
-  workflow_dispatch: # Permite iniciar manualmente o deploy via interface do GitHub
   workflow_call:
     input:
       project-language:
