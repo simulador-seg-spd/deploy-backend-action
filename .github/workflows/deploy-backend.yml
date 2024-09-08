@@ -27,7 +27,7 @@ jobs:
       AWS_ECR_REPOSITORY: ${{ inputs.aws-ecr-repository }}
       AWS_REGION: ${{ inputs.aws-region }}
       AWS_ACCOUNT_ID: ${{ inputs.aws-account-id }}
-
+    secrets: inherit
   # Executa o CD para fazer o deploy no ECS
   deploy_to_ecs:
     needs: build_and_push_image # Certifica-se de que o job de CI seja concluído antes de rodar o CD
@@ -38,3 +38,4 @@ jobs:
       AWS_REGION: ${{ inputs.aws-region }}
       AWS_ACCOUNT_ID: ${{ inputs.aws-account-id }}
       ImageUrl: ${{ needs.build_and_push_image.outputs.image-url }} # Usa o output do CI
+    secrets: inherit
