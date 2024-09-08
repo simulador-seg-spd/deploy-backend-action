@@ -1,0 +1,51 @@
+name: CI - Build and Push to ECR
+
+on:
+  workflow_call:
+    inputs:
+      project-language:
+        description: 'Linguagem do projeto (python ou java)'
+        required: true
+        type: string
+      AWS_ECR_REPOSITORY:
+        required: true
+      AWS_REGION:
+        required: true
+      AWS_ACCOUNT_ID:
+        required: true
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Passo 1: Fazer checkout do repositório do projeto
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Passo 2: Buildar o projeto baseado na linguagem
+      - name: Build project
+        run: ./scripts/build-${{ inputs.project-language }}.sh
+
+      # Passo 3: Logar no Amazon ECR
+      - name: Log in to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      # Passo 4: Build da imagem Docker
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ inputs.AWS_ECR_REPOSITORY }}:latest .
+
+      # Passo 5: Tag da imagem Docker
+      - name: Tag Docker image
+        run: |
+          docker tag ${{ inputs.AWS_ECR_REPOSITORY }}:latest ${{ inputs.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.AWS_REGION }}.amazonaws.com/${{ inputs.AWS_ECR_REPOSITORY }}:latest
+
+      # Passo 6: Push da imagem Docker para o ECR
+      - name: Push Docker image to Amazon ECR
+        run: |
+          docker push ${{ inputs.AWS_ACCOUNT_ID }}.dkr.ecr.${{ inputs.AWS_REGION }}.amazonaws.com/${{ inputs.AWS_ECR_REPOSITORY }}:latest
+
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

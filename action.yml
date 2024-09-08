@@ -1,20 +1,31 @@
-name: 'Amazon ECS Deploy Action'
-description: 'Deploy a Docker image to Amazon ECS from GitHub Actions'
-inputs:
-  service-name:
-    description: 'The name of the service being deployed. This will be used to derive ECR repository, ECS service, and task role.'
-    required: true
-  aws-ecs-cluster:
-    description: 'The AWS ECS cluster name where the service will be deployed.'
-    required: true
-  aws-region:
-    description: 'The AWS region where the ECS service is located.'
-    required: true
+name: Deploy Backend
 
-runs:
-  using: 'composite'
-  steps:
-    - run: |
-        echo "Reusing deploy steps from ecs-deploy.yml"
-      shell: bash
-      working-directory: .github/actions/ecs-deploy.yml
+on:
+  push:
+    branches:
+      - main # Será acionado ao fazer push na branch 'main'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Passo 1: Fazer checkout do repositório do projeto
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Passo 2: Executar o CI
+      - name: Run CI pipeline
+        uses: ./ci.yml # Chama o arquivo CI.yml local
+        with:
+          AWS_ECR_REPOSITORY: 'meu-repositorio-ecr'
+          AWS_REGION: 'us-east-1'
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+
+      # Passo 3: Executar o CD
+      - name: Run CD pipeline
+        uses: ./cd.yml # Chama o arquivo CD.yml local
+        with:
+          AWS_ECR_REPOSITORY: 'meu-repositorio-ecr'
+          AWS_REGION: 'us-east-1'
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}

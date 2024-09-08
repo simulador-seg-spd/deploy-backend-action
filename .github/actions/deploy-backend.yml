@@ -1,0 +1,53 @@
+name: Deploy Backend
+
+on:
+  workflow_dispatch: # Permite iniciar manualmente o deploy via interface do GitHub
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    inputs:
+      project-language:
+        description: 'Linguagem do projeto (python ou java)'
+        required: true
+        type: string
+      aws-ecr-repository:
+        description: 'Nome do repositório ECR'
+        required: true
+        type: string
+      aws-region:
+        description: 'Região AWS'
+        required: true
+        type: string
+      aws-account-id:
+        description: 'ID da conta AWS'
+        required: true
+        type: string
+      stack-name:
+        description: 'Nome da stack do CloudFormation'
+        required: true
+        type: string
+
+    steps:
+      # Passo 1: Fazer checkout do repositório do projeto
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Passo 2: Executar o CI (buildar o projeto e enviar a imagem para o ECR)
+      - name: Run CI pipeline
+        uses: ./ci.yml # Chama o arquivo CI.yml local
+        with:
+          project-language: ${{ inputs.project-language }}
+          AWS_ECR_REPOSITORY: ${{ inputs.aws-ecr-repository }}
+          AWS_REGION: ${{ inputs.aws-region }}
+          AWS_ACCOUNT_ID: ${{ inputs.aws-account-id }}
+
+      # Passo 3: Executar o CD (deploy da imagem no ECS via CloudFormation)
+      - name: Run CD pipeline
+        uses: ./cd.yml # Chama o arquivo CD.yml local
+        with:
+          stack-name: ${{ inputs.stack-name }}
+          AWS_ECR_REPOSITORY: ${{ inputs.aws-ecr-repository }}
+          AWS_REGION: ${{ inputs.aws-region }}
+          AWS_ACCOUNT_ID: ${{ inputs.aws-account-id }}
