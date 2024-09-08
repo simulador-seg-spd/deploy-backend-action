@@ -1,26 +1,22 @@
 name: Deploy Backend
+
 on:
   workflow_call:
-    input:
+    inputs:
       project-language:
-        type: string
         required: true
       aws-ecr-repository:
-        type: string
         required: true
       aws-region:
-        type: string
         required: true
       aws-account-id:
-        type: string
         required: true
       stack-name:
-        type: string
         required: true
     secrets:
       AWS_ACCOUNT_ID:
-        type: string
         required: true
+
 permissions:
   id-token: write
   contents: read

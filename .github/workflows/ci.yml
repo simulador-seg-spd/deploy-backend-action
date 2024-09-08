@@ -4,16 +4,13 @@ on:
   workflow_call:
     inputs:
       project-language:
-        description: 'Linguagem do projeto (python ou java)'
         required: true
-        type: string
       AWS_ECR_REPOSITORY:
         required: true
       AWS_REGION:
         required: true
     secrets:
       AWS_ACCOUNT_ID:
-        type: string
         required: true
 
 jobs:
