@@ -31,7 +31,7 @@ jobs:
       project-language: ${{ inputs.project-language }}
       AWS_ECR_REPOSITORY: ${{ inputs.aws-ecr-repository }}
       AWS_REGION: ${{ inputs.aws-region }}
-      AWS_ACCOUNT_ID: ${{ inputs.aws-account-id }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
 
   deploy_to_ecs:
     name: Deploy image to ecs
@@ -41,5 +41,5 @@ jobs:
       stack-name: ${{ inputs.stack-name }}
       AWS_ECR_REPOSITORY: ${{ inputs.aws-ecr-repository }}
       AWS_REGION: ${{ inputs.aws-region }}
-      AWS_ACCOUNT_ID: ${{ inputs.aws-account-id }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
       ImageUrl: ${{ needs.build_and_push_image.outputs.image-url }}
