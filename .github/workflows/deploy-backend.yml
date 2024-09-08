@@ -40,7 +40,6 @@ jobs:
     uses: ./.github/workflows/cd.yml
     with:
       stack-name: ${{ inputs.stack-name }}
-      AWS_ECR_REPOSITORY: ${{ inputs.aws-ecr-repository }}
       AWS_REGION: ${{ inputs.aws-region }}
       ImageUrl: ${{ needs.build_and_push_image.outputs.image-url }}
     secrets:
