@@ -18,6 +18,10 @@ on:
       stack-name:
         type: string
         required: true
+permissions:
+  id-token: write # Necessário se você estiver usando OIDC para autenticação com AWS
+  contents: read # Necessário para ler o conteúdo do repositório
+  actions: write # Necessário para interagir com outras actions e workflows
 jobs:
   # Executa o CI para buildar a imagem e enviá-la para o ECR
   build_and_push_image:
